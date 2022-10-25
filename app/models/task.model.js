@@ -1,51 +1,50 @@
+const { DataTypes } = require('sequelize');
+
 module.exports = (sequelize, Sequelize) => {
-    const WorkItem = sequelize.define("WorkItem", {
+    const Task = sequelize.define("Task", {
       id: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
+        allowNull: false
       },
       title: {
-        type: Sequelize.STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
       status: {
-        type: Sequelize.STRING,
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'CREATED'
       },
       priority: {
-        type: Sequelize.STRING,
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'LOW'
       },
       description: {
-        type: Sequelize.STRING(1024),
+        type: DataTypes.STRING(1024),
         allowNull: false,
       },
       due: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         defaultValue: null
       },
       completed: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         defaultValue: null
       },
       parent_id: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         defaultValue: null
       },
       owner_id: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         defaultValue: null
       },
       creator_id: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         defaultValue: null
       }
-    }, {
-      freezeTableName: true
     });
   
-    return WorkItem;
+    return Task;
   };

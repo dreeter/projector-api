@@ -1,14 +1,14 @@
-//create sequelize data model
+const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize, Sequelize) => {
     const Project = sequelize.define("Project", {
         id: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true
         },
-        item_id: {
-          type: Sequelize.STRING
+        task_id: {
+          type: DataTypes.INTEGER
         }
       });
     

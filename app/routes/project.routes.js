@@ -7,8 +7,10 @@ router.get("/:id", project.findOne);
 
 router.post("/", project.create);
 
+router.put("/:id", project.update);
+
 router.delete("/:id", project.delete);
 
-//TODO: router.put
+router.get("/", project.findAll);
 
 module.exports = router;

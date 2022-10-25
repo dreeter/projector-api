@@ -1,10 +1,11 @@
 const { DATE } = require("sequelize");
 const db = require("../models/index");
-const workItem = db.workItem;
+const taskModel = db.task;
 const Op = db.Sequelize.Op;
 
 exports.create = async (req, res) => {
 
+    //TODO: do more validation
     if(!req.body.title) {
         res.status(400).send({
             message: "Title may not be empty!"
@@ -12,43 +13,42 @@ exports.create = async (req, res) => {
         return;
     }
 
-    const newWorkItem = {
+    const newTask = {
         title: req.body.title,
         status: req.body.status,
-        priority: req.body.status,
+        priority: req.body.priority,
         description: req.body.description,
-        due: req.body.due || null,
+        due: req.body.due,
         completed: req.body.completed || null,
-        parent_id: req.body.parent_id || null,
-        owner_id: req.body.owner_id || null,
-        creator_id: req.body.creator_id || null
+        parent_id: req.body.parent_id,
+        owner_id: req.body.owner_id,
+        creator_id: req.body.creator_id,
     };
 
     try {
-        const result = await workItem.create(newWorkItem);
+        const result = await taskModel.create(newTask);
         res.send(result);
     } catch (err) {
         res.status(500).send({
-            message: err || "Some error occured creating this item"
+            message: err || "Some error occured creating this task"
         })
     }
 
 };
 
 exports.findOne = async (req, res) => {
-  
-    const id = req.params.id;
 
     try { 
-        const result = await workItem.findByPk(id);
-        if(result){
-            res.send(result);
+        const task = await taskModel.findByPk(req.params.id);
+
+        if(task){
+            res.send(task);
         } else {
-            res.status(404).send({message: "No id found"})
+            res.status(404).send({message: "No task with this id found"})
         }
     } catch (err) {
         res.status(500).send({
-            message: err || "Some error occured getting this item"
+            message: err
         })
     }
 
@@ -63,16 +63,16 @@ exports.update = async (req, res) => {
     req.body.owner_id = 5;
     req.body.due = new Date(Date.now()).toISOString();
     req.body.completed = new Date(Date.now()).toISOString();
-rs
+
     try{
-        const result = await workItem.update(req.body, {where: {id: id}});
-        if(result[0] === 1){
-            res.send({message: "Item updated successful"});
+        const updateResult = await taskModel.update(req.body, {where: {id: id}});
+        if(updateResult[0] === 1){
+            res.send({message: "Task updated successful"});
         } else {
-            res.send({message: "Item update unsuccessful"});
+            res.send({message: "Task update unsuccessful"});
         }
     } catch(err){
-        res.status(500).send({message: "Error updating item with id"});
+        res.status(500).send({message: "Error updating task with id: " + id});
     }
 
 };
@@ -82,8 +82,8 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
 
     try{
-        const result = await workItem.destroy({where: {id: id}});
-        if(result[0] === 1){
+        const deleteResult = await taskModel.destroy({where: {id: id}});
+        if(deleteResult[0] === 1){
             res.send({message: "Item deleted successful"});
         } else {
             res.send({message: "Item delete unsuccessful"});
@@ -94,14 +94,14 @@ exports.delete = async (req, res) => {
 
 };
 
-exports.findAllChildren = async (req, res) => {
+exports.findAllChildTasks = async (req, res) => {
   
     const parent_id = req.params.id;
 
     try{
-        const result = await workItem.findAll({where: { parent_id: parent_id }});
-        if(result){
-            res.send(result);
+        const childTasks = await taskModel.findAll({where: { parent_id: parent_id }});
+        if(childTasks){
+            res.send(childTasks);
         } else {
             res.send({message: "Error finding children"});
         }

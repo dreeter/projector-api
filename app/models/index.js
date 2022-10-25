@@ -21,7 +21,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.workItem = require("./work-item.model.js")(sequelize, Sequelize);
+db.task = require("./task.model.js")(sequelize, Sequelize);
 db.project = require("./project.model.js")(sequelize, Sequelize);
 
 module.exports = db;
