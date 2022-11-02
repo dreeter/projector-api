@@ -81,6 +81,14 @@ exports.delete = async (req, res) => {
 
     const id = req.params.id;
 
+    //delete all child tasks of this task
+    try{
+        const deleteResult = await taskModel.destroy({where: {parent_id: id}});
+    } catch(err){
+        res.status(500).send({message: "Error deleteing child tasks with parent_id: " + id});
+    }
+
+    //delete the task itself
     try{
         const deleteResult = await taskModel.destroy({where: {id: id}});
         if(deleteResult[0] === 1){

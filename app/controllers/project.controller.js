@@ -6,23 +6,6 @@ const Op = db.Sequelize.Op;
 const { QueryTypes } = require("sequelize");
 
 exports.create = async (req, res) => {
-
-    //TODO: more validation to make sure we got sent everything we require
-
-    // export class TaskInfo {
-    //     constructor(
-    //       public parent_id: number | null = null,
-    //       public title: string,
-    //       public description: string,
-    //       public priority: PRIORITY,
-    //       public owner_id: number | null,
-    //       public creator_id: number | null,
-    //       public due: Date,
-    //       public status: STATUS
-    //     ) {}
-    //   }
-
-    console.log(req.body);
   
     if(!req.body.title) {
         res.status(400).send({
@@ -31,7 +14,6 @@ exports.create = async (req, res) => {
         return;
     }
 
-    //Create the Project's Work Item followed by the Project
     const newProjectTask = {
         title: req.body.title,
         status: req.body.status,
@@ -43,9 +25,6 @@ exports.create = async (req, res) => {
         owner_id: req.body.owner_id,
         creator_id: req.body.creator_id,
     };
-
-    console.log("The project task we're inserting");
-    console.log(newProjectTask);
 
     try{
         const createdTask = await taskModel.create(newProjectTask);
@@ -124,6 +103,7 @@ exports.findAll = async (req, res) => {
 
         res.send(projects);
 
+
     } catch (err){
         res.send({message: "Error getting all projects"});
     }
@@ -163,12 +143,14 @@ exports.delete = async (req, res) => {
 
     const id = req.params.id;
 
-    //delete task
+    //delete child tasks
     try {
 
         const projectToDelete = await projectModel.findByPk(id);
 
         if(!projectToDelete) res.send({message: "No project with id " + id + "found" });
+
+        await taskModel.destroy({ where: {parent_id: projectToDelete.dataValues.task_id}});
 
         const result = await taskModel.destroy({ where: {id: projectToDelete.dataValues.task_id}});
 
