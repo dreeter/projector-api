@@ -3,6 +3,7 @@ const taskRoutes = require('./app/routes/task.routes');
 const projectRoutes = require('./app/routes/project.routes');
 const userRoutes = require('./app/routes/user.routes');
 const authRoutes = require('./app/routes/auth.routes');
+const authJwt = require('./app/middleware/authJwt.middleware');
 const db = require('./app/models/index');
 const cors = require('cors');
 
@@ -21,70 +22,50 @@ function initialize() {
  
   Role.create({
     id: 2,
-    name: "moderator"
-  });
- 
-  Role.create({
-    id: 3,
     name: "admin"
   });
 }
 
 const app = express();
 
+//Cross-Origin-Resource Sharing. Allow port 4200 access
 const corsOptions = {
-  origin: 'http://localhost:3000'
+  origin: 'http://localhost:4200',
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'],
+  credentials: 'true'
 }
-
 app.use(cors(corsOptions));
-// app.use(cors());
 
-// app.use(cors( {
-//   origin: 'http://localhost:4200',
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-//   credentials: true
-// } ));
 
-// app.use( async (req, res, next) => {
 
-//   //temporary - test loading spinner
-//   await new Promise(resolve => setTimeout(resolve, 200));
+app.use( async (req, res, next) => {
 
-//   console.log("This middleware being called");
+  //temporary - test loading spinner
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin, X-Requested-With, Content-Type, Accept'
-//   );
-//   res.header('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT, POST, DELETE');
+  res.header('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT, POST, DELETE');
 
-//   if ('OPTIONS' === req.method) {
-//     res.sendStatus(200);
-//   } else {
-//     console.log(`${req.ip} ${req.method} ${req.url}`);
-//     next();
-//   }
-// });
-
-function loggingMiddleware(req, res, next) {
-  console.log("The request");
-  console.log(req);
-  console.log("The request body");
-  console.log(req.body);
-  next();
-}
+  if ('OPTIONS' === req.method) {
+    res.sendStatus(200);
+  } else {
+    console.log(`${req.ip} ${req.method} ${req.url}`);
+    next();
+  }
+});
 
 
 // parse requests of content-type - application/json
-app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(loggingMiddleware);
+
+//Use routes, all routes beneath /auth must be authenticated
+app.use('/auth', authRoutes);
+app.use(authJwt.verifyToken)
 app.use('/task', taskRoutes);
 app.use('/project', projectRoutes);
 app.use('/user', userRoutes);
-app.use('/auth', authRoutes);
+
 
 
 
